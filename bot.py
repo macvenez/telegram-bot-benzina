@@ -1,93 +1,43 @@
 import _token
 
-apikey = _token.api_key
+import telebot
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-import logging
-from telegram import (
-    Update,
-    InlineQueryResultArticle,
-    InputTextMessageContent,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-)
-from telegram.ext import (
-    filters,
-    MessageHandler,
-    ApplicationBuilder,
-    CommandHandler,
-    ContextTypes,
-    InlineQueryHandler,
-)
-
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
+bot = telebot.TeleBot(_token.api_key, parse_mode=None)
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [
-            InlineKeyboardButton("Benzina", callback_data="1"),
-            InlineKeyboardButton("Gasolio", callback_data="2"),
-        ],
-        [InlineKeyboardButton("GPL", callback_data="3")],
-    ]
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await update.message.reply_text(
-        "Seleziona tipo di carburante:", reply_markup=reply_markup
-    )
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!"
+@bot.message_handler(commands=["start", "help"])
+def send_welcome(message):
+    bot.send_message(
+        message.chat.id, "Seleziona il tipo di carburante:", reply_markup=gen_markup()
     )
 
 
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id, text=update.message.text
+@bot.callback_query_handler(func=lambda call: True)
+def callback_query(call):
+    carburante = call.data
+    bot.edit_message_text(
+        "Inviami la tua posizione...", call.message.chat.id, call.message.message_id
     )
-    print(update.message.text)
+    """
+    if call.data == "benzina":
+        bot.answer_callback_query(call.id, "Answer is Benzina")
+    elif call.data == "gasolio":
+        bot.answer_callback_query(call.id, "Answer is No")
+    """
 
 
-async def caps(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text_caps = " ".join(context.args).upper()
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=text_caps)
-
-
-async def inline_caps(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.inline_query.query
-    if not query:
-        return
-    results = []
-    results.append(
-        InlineQueryResultArticle(
-            id=query.upper(),
-            title="Caps",
-            input_message_content=InputTextMessageContent(query.upper()),
-        )
+def gen_markup():
+    markup = InlineKeyboardMarkup()
+    markup.row_width = 2
+    markup.add(
+        InlineKeyboardButton("Benzina", callback_data="benzina"),
+        InlineKeyboardButton("Gasolio", callback_data="gasolio"),
     )
-    await context.bot.answer_inline_query(update.inline_query.id, results)
+    markup.add(
+        InlineKeyboardButton("GPL", callback_data="gpl"),
+    )
+    return markup
 
 
-async def location(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    current_pos = (update.message.location.latitude, update.message.location.longitude)
-    print(current_pos)
-
-
-if __name__ == "__main__":
-    application = ApplicationBuilder().token(apikey).build()
-
-    start_handler = CommandHandler("start", start)
-    echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), echo)
-    caps_handler = CommandHandler("caps", caps)
-    inline_caps_handler = InlineQueryHandler(inline_caps)
-    location_handler = MessageHandler(filters.LOCATION, location)
-
-    application.add_handler(start_handler)
-    application.add_handler(echo_handler)
-    application.add_handler(caps_handler)
-    application.add_handler(inline_caps_handler)
-    application.add_handler(location_handler)
-
-    application.run_polling()
+bot.infinity_polling()
