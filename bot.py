@@ -27,15 +27,17 @@ logging.basicConfig(
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [
-            InlineKeyboardButton("Option 1", callback_data="1"),
-            InlineKeyboardButton("Posizione", callback_data="2"),
+            InlineKeyboardButton("Benzina", callback_data="1"),
+            InlineKeyboardButton("Gasolio", callback_data="2"),
         ],
-        [InlineKeyboardButton("Option 3", callback_data="3")],
+        [InlineKeyboardButton("GPL", callback_data="3")],
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await update.message.reply_text("Please choose:", reply_markup=reply_markup)
+    await update.message.reply_text(
+        "Seleziona tipo di carburante:", reply_markup=reply_markup
+    )
     await context.bot.send_message(
         chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!"
     )
