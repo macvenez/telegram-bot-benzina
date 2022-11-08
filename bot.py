@@ -80,11 +80,12 @@ if __name__ == "__main__":
     echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), echo)
     caps_handler = CommandHandler("caps", caps)
     inline_caps_handler = InlineQueryHandler(inline_caps)
+    location_handler = MessageHandler(filters.LOCATION, location)
 
     application.add_handler(start_handler)
     application.add_handler(echo_handler)
     application.add_handler(caps_handler)
     application.add_handler(inline_caps_handler)
-    application.add_handler(MessageHandler(filters.LOCATION, location))
+    application.add_handler(location_handler)
 
     application.run_polling()
