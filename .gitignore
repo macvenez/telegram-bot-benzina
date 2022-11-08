@@ -1,3 +1,2 @@
-.gitignore
-token.py
+_token.py
 __pycache__
