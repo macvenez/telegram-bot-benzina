@@ -15,6 +15,14 @@ def send_welcome(message):
     )
 
 
+@bot.message_handler(commands=["config"])
+def send_welcome(message):
+    print("Config request from id: " + message.from_user.username)
+    bot.send_message(
+        message.chat.id, "Seleziona il tipo di carburante:", reply_markup=gen_markup()
+    )
+
+
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     global carburante
