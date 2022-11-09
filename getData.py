@@ -2,9 +2,9 @@ import requests, json
 from geopy import distance
 from operator import itemgetter
 
-location = (44.9983525, 7.680287799999999)
+# location = (44.9983525, 7.680287799999999)
 distanza_max = 5
-"""
+
 URL = "https://carburanti.mise.gov.it/ospzApi/search/zone"
 
 HEADERS = {
@@ -21,24 +21,30 @@ HEADERS = {
     "Cache-Control": "no-cache",
 }
 
-raw_data = '{"points":[{"lat":44.9983525,"lng":7.680287799999999}],"fuelType":"1-1","priceOrder":"asc"}'
-r = requests.post(url=URL, data=raw_data, headers=HEADERS)
-# data = str(r.content)
-data = (
-    bytes(r.content.decode("utf-8"), "utf-8")
-    .decode("unicode_escape")
-    .replace("\\", "/")
-)
-f = open("data.json", "w")
-f.write(data)
-f.close()
-"""
-
 
 def cerca_prezzo(location, distanza_max):
-    with open("data copy.json", "r") as file:
-        data = json.load(file)["results"]
+    raw_data = (
+        '{"points":[{"lat":'
+        + str(location[0])
+        + ',"lng":'
+        + str(location[1])
+        + '}],"fuelType":"1-1","priceOrder":"asc"}'
+    )
+    # raw_data = '{"points":[{"lat":44.9983525,"lng":7.680287799999999}],"fuelType":"1-1","priceOrder":"asc"}'
+    r = requests.post(url=URL, data=raw_data, headers=HEADERS)
+    data = (
+        bytes(r.content.decode("utf-8"), "utf-8")
+        .decode("unicode_escape")
+        .replace("\\", "/")
+    )
+    """f = open("data.json", "w")
+    f.write(data)
+    f.close()
+    with open("data.json", "r") as file:
+        data = 
         # filedata = file.read()
+     """
+    data = json.loads(data)["results"]
     validi = []
 
     for benzinaio in data:

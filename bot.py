@@ -1,4 +1,5 @@
 import _token
+import getData
 
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -31,7 +32,37 @@ def callback_query(call):
 @bot.message_handler(content_types=["location", "venue"])
 def handle_location(message):
     location = [message.location.latitude, message.location.longitude]
-    print(location)
+    # print(location)
+    prezzi = getData.cerca_prezzo(location, 5)
+    max_benzinai = 5
+    msg_buf = ""
+    for i, item in enumerate(prezzi):
+        if i == max_benzinai:
+            break
+        else:
+            if i == 0:
+                msg_buf += "\U0001F947 "
+            if i == 1:
+                msg_buf += "\U0001F948 "
+            if i == 2:
+                msg_buf += "\U0001F949 "
+            if i > 2:
+                msg_buf += str(i + 1)
+            msg_buf += " - "
+            location_buf = (
+                str(prezzi[i]["coord"]["lat"]) + "," + str(prezzi[i]["coord"]["lng"])
+            )
+            msg_buf += (
+                '<a href="https://maps.google.com/?q='
+                + location_buf
+                + '">'
+                + str(prezzi[i]["prezzo"])
+                + "€/l - "
+                + prezzi[i]["marca"]
+                + "</a>\n"
+            )
+
+    bot.send_message(message.chat.id, msg_buf, parse_mode="HTML")
 
 
 def gen_markup():
