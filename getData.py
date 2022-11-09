@@ -3,7 +3,6 @@ from geopy import distance
 from operator import itemgetter
 
 # location = (44.9983525, 7.680287799999999)
-distanza_max = 5
 
 URL = "https://carburanti.mise.gov.it/ospzApi/search/zone"
 
@@ -22,13 +21,15 @@ HEADERS = {
 }
 
 
-def cerca_prezzo(location, distanza_max):
+def cerca_prezzo(location, carburante, distanza_max):
     raw_data = (
         '{"points":[{"lat":'
         + str(location[0])
         + ',"lng":'
         + str(location[1])
-        + '}],"fuelType":"1-1","priceOrder":"asc"}'
+        + '}],"fuelType":"'
+        + carburante
+        + '","priceOrder":"asc"}'
     )
     # raw_data = '{"points":[{"lat":44.9983525,"lng":7.680287799999999}],"fuelType":"1-1","priceOrder":"asc"}'
     r = requests.post(url=URL, data=raw_data, headers=HEADERS)
@@ -37,16 +38,8 @@ def cerca_prezzo(location, distanza_max):
         .decode("unicode_escape")
         .replace("\\", "/")
     )
-    """f = open("data.json", "w")
-    f.write(data)
-    f.close()
-    with open("data.json", "r") as file:
-        data = 
-        # filedata = file.read()
-     """
     data = json.loads(data)["results"]
     validi = []
-
     for benzinaio in data:
         distanza = distance.distance(
             [benzinaio["location"].get("lat"), benzinaio["location"].get("lng")],
@@ -54,20 +47,37 @@ def cerca_prezzo(location, distanza_max):
         ).km
         if distanza <= distanza_max:
             for benzina in benzinaio["fuels"]:
-                if benzina.get("fuelId") == 1 and benzina.get("isSelf") == True:
+                if int(benzina.get("fuelId")) == int(carburante[0]):
+                    dati = {
+                        "id": benzinaio["id"],
+                        "distanza": distanza,
+                        "nome": benzinaio["name"],
+                        "prezzo": benzina["price"],
+                        "luogo": benzinaio["address"],
+                        "marca": benzinaio["brand"],
+                        "coord": benzinaio["location"],
+                    }
+                    validi.append(dati)
                     break
-            dati = {
-                "id": benzinaio["id"],
-                "distanza": distanza,
-                "nome": benzinaio["name"],
-                "prezzo": benzina["price"],
-                "luogo": benzinaio["address"],
-                "marca": benzinaio["brand"],
-                "coord": benzinaio["location"],
-            }
-            validi.append(dati)
+                if carburante[0] == "1" or carburante[0] == "2":
+                    if benzina.get("isSelf") == True and int(
+                        benzina.get("fuelId")
+                    ) == int(carburante[0]):
+                        dati = {
+                            "id": benzinaio["id"],
+                            "distanza": distanza,
+                            "nome": benzinaio["name"],
+                            "prezzo": benzina["price"],
+                            "luogo": benzinaio["address"],
+                            "marca": benzinaio["brand"],
+                            "coord": benzinaio["location"],
+                        }
+                        validi.append(dati)
+                        break
+
     validi = sorted(validi, key=itemgetter("prezzo"))
-    fw = open("valid.txt", "w")
+    """fw = open("valid.txt", "w")
     fw.write(str(validi))
     fw.close()
+    """
     return validi
