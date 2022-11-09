@@ -22,7 +22,7 @@ HEADERS = {
 
 
 def cerca_prezzo(location, carburante, distanza_max):
-    raw_data = (
+    """raw_data = (
         '{"points":[{"lat":'
         + str(location[0])
         + ',"lng":'
@@ -37,7 +37,9 @@ def cerca_prezzo(location, carburante, distanza_max):
         bytes(r.content.decode("utf-8"), "utf-8")
         .decode("unicode_escape")
         .replace("\\", "/")
-    )
+    )"""
+    f = open("data copy.json", "r")
+    data = f.read()
     data = json.loads(data)["results"]
     validi = []
     for benzinaio in data:
@@ -56,6 +58,7 @@ def cerca_prezzo(location, carburante, distanza_max):
                         "luogo": benzinaio["address"],
                         "marca": benzinaio["brand"],
                         "coord": benzinaio["location"],
+                        "icon": "",
                     }
                     validi.append(dati)
                     break
@@ -71,11 +74,14 @@ def cerca_prezzo(location, carburante, distanza_max):
                             "luogo": benzinaio["address"],
                             "marca": benzinaio["brand"],
                             "coord": benzinaio["location"],
+                            "icon": "",
                         }
                         validi.append(dati)
                         break
-
+    validi = sorted(validi, key=itemgetter("distanza"))
+    validi[0]["icon"] = "\U0001F680"
     validi = sorted(validi, key=itemgetter("prezzo"))
+
     """fw = open("valid.txt", "w")
     fw.write(str(validi))
     fw.close()

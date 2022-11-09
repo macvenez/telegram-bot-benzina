@@ -4,7 +4,7 @@ import getData
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-bot = telebot.TeleBot(_token.api_key, parse_mode=None)
+bot = telebot.TeleBot(_token.api_key_development, parse_mode=None)
 
 
 @bot.message_handler(commands=["start"])
@@ -48,7 +48,9 @@ def handle_location(message):
         + carburante
     )
     location = [message.location.latitude, message.location.longitude]
-    prezzi = getData.cerca_prezzo(location, carburante, 5)
+    prezzi = getData.cerca_prezzo(
+        location, carburante, 5
+    )  # 5 in questo caso è la distanza
     max_benzinai = 5
     msg_buf = ""
     for i, item in enumerate(prezzi):
@@ -56,14 +58,14 @@ def handle_location(message):
             break
         else:
             if i == 0:
-                msg_buf += "\U0001F947 "
+                msg_buf += "\U0001F947"
             if i == 1:
-                msg_buf += "\U0001F948 "
+                msg_buf += "\U0001F948"
             if i == 2:
-                msg_buf += "\U0001F949 "
+                msg_buf += "\U0001F949"
             if i > 2:
-                msg_buf += str(i + 1)
-            msg_buf += " - "
+                msg_buf += "  " + str(i + 1) + " "
+            msg_buf += "-"
             location_buf = (
                 str(prezzi[i]["coord"]["lat"]) + "," + str(prezzi[i]["coord"]["lng"])
             )
@@ -75,9 +77,11 @@ def handle_location(message):
                 + location_buf
                 + '">'
                 + str(prezzi[i]["prezzo"])
-                + "€/l - "
+                + "€/l "
                 + nome
-                + "</a>\n"
+                + "</a>"
+                + prezzi[i]["icon"]
+                + "\n"
             )
 
     bot.send_message(message.chat.id, msg_buf, parse_mode="HTML")
