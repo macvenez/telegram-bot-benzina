@@ -3,6 +3,7 @@ from geopy import distance
 from operator import itemgetter
 
 # location = (44.9983525, 7.680287799999999)
+testing = 1  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
 
 URL = "https://carburanti.mise.gov.it/ospzApi/search/zone"
 
@@ -22,24 +23,30 @@ HEADERS = {
 
 
 def cerca_prezzo(location, carburante, distanza_max):
-    """raw_data = (
-        '{"points":[{"lat":'
-        + str(location[0])
-        + ',"lng":'
-        + str(location[1])
-        + '}],"fuelType":"'
-        + carburante
-        + '","priceOrder":"asc"}'
-    )
-    # raw_data = '{"points":[{"lat":44.9983525,"lng":7.680287799999999}],"fuelType":"1-1","priceOrder":"asc"}'
-    r = requests.post(url=URL, data=raw_data, headers=HEADERS)
-    data = (
-        bytes(r.content.decode("utf-8"), "utf-8")
-        .decode("unicode_escape")
-        .replace("\\", "/")
-    )"""
-    f = open("data copy.json", "r")
-    data = f.read()
+    if testing == 0:
+        raw_data = (
+            '{"points":[{"lat":'
+            + str(location[0])
+            + ',"lng":'
+            + str(location[1])
+            + '}],"fuelType":"'
+            + carburante
+            + '","priceOrder":"asc"}'
+        )
+        # raw_data = '{"points":[{"lat":44.9983525,"lng":7.680287799999999}],"fuelType":"1-1","priceOrder":"asc"}'
+        r = requests.post(url=URL, data=raw_data, headers=HEADERS)
+        data = (
+            bytes(r.content.decode("utf-8"), "utf-8")
+            .decode("unicode_escape")
+            .replace("\\", "/")
+        )
+        print("Requested data from internet")
+    else:
+        f = open("data copy.json", "r")
+        data = f.read()
+        f.close()
+        print("Requested data from file")
+
     data = json.loads(data)["results"]
     validi = []
     for benzinaio in data:
