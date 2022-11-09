@@ -19,12 +19,19 @@ def callback_query(call):
     bot.edit_message_text(
         "Inviami la tua posizione...", call.message.chat.id, call.message.message_id
     )
+
     """
     if call.data == "benzina":
         bot.answer_callback_query(call.id, "Answer is Benzina")
     elif call.data == "gasolio":
         bot.answer_callback_query(call.id, "Answer is No")
     """
+
+
+@bot.message_handler(content_types=["location", "venue"])
+def handle_location(message):
+    location = [message.location.latitude, message.location.longitude]
+    print(location)
 
 
 def gen_markup():
