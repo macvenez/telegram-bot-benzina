@@ -6,6 +6,9 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 bot = telebot.TeleBot(_token.api_key_development, parse_mode=None)
 
+raggio = 2
+carburante = ""
+
 
 @bot.message_handler(commands=["start"])
 def send_welcome(message):
@@ -18,29 +21,65 @@ def send_welcome(message):
 @bot.message_handler(commands=["config"])
 def send_welcome(message):
     print("Config request from id: " + message.from_user.username)
-    bot.send_message(
-        message.chat.id, "Seleziona il tipo di carburante:", reply_markup=gen_markup()
-    )
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
-    global carburante
+    global carburante, raggio
     carburante = call.data
+    if carburante == "radius":
+        bot.answer_callback_query(callback_query_id=call.id)
+        return
+    if carburante == "rp":
+        if raggio < 1:
+            raggio += 0.1
+            if raggio == 1:
+                raggio = int(raggio)
+        else:
+            raggio = int(raggio)
+            if raggio >= 20:
+                bot.answer_callback_query(callback_query_id=call.id)
+                return
+            raggio += 1
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.edit_message_text(
+            "Seleziona il tipo di carburante: ",
+            call.message.chat.id,
+            call.message.message_id,
+            reply_markup=gen_markup(),
+        )
+        return
+    if carburante == "rm":
+        if raggio <= 1:
+            if raggio <= 0.15:
+                bot.answer_callback_query(callback_query_id=call.id)
+                return
+            raggio -= 0.1
+        else:
+            raggio -= 1
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.edit_message_text(
+            "Seleziona il tipo di carburante: ",
+            call.message.chat.id,
+            call.message.message_id,
+            reply_markup=gen_markup(),
+        )
+        return
     bot.edit_message_text(
         "Inviami la tua posizione...", call.message.chat.id, call.message.message_id
     )
 
-    """
-    if call.data == "benzina":
-        bot.answer_callback_query(call.id, "Answer is Benzina")
-    elif call.data == "gasolio":
-        bot.answer_callback_query(call.id, "Answer is No")
-    """
-
 
 @bot.message_handler(content_types=["location", "venue"])
 def handle_location(message):
+    global carburante
+    if carburante not in ("1-1", "2-1", "4-x"):
+        bot.send_message(
+            message.chat.id,
+            "\U000026A0 Seleziona prima il tipo di carburante:",
+            reply_markup=gen_markup(),
+        )
+        return
     print(
         "Request prezzi from id: "
         + message.from_user.username
@@ -49,8 +88,19 @@ def handle_location(message):
     )
     location = [message.location.latitude, message.location.longitude]
     prezzi = getData.cerca_prezzo(
-        location, carburante, 5
+        location, carburante, raggio
     )  # 5 in questo caso è la distanza
+    if prezzi == -1:
+        bot.send_message(
+            message.chat.id,
+            "Nessun benzinaio trovato nell'area selezionata\nriprova con un raggio maggiore",
+        )
+        bot.send_message(
+            message.chat.id,
+            "Seleziona il tipo di carburante:",
+            reply_markup=gen_markup(),
+        )
+        return
     max_benzinai = 5
     msg_buf = ""
     for i, item in enumerate(prezzi):
@@ -89,6 +139,14 @@ def handle_location(message):
 
 def gen_markup():
     markup = InlineKeyboardMarkup()
+    markup.row_width = 3
+    markup.add(
+        InlineKeyboardButton("-", callback_data="rm"),
+        InlineKeyboardButton(
+            "Raggio (km): " + str(round(raggio, 1)), callback_data="radius"
+        ),
+        InlineKeyboardButton("+", callback_data="rp"),
+    )
     markup.row_width = 2
     markup.add(
         InlineKeyboardButton("Benzina", callback_data="1-1"),
@@ -97,6 +155,7 @@ def gen_markup():
     markup.add(
         InlineKeyboardButton("GPL", callback_data="4-x"),
     )
+
     return markup
 
 

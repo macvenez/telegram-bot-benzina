@@ -3,7 +3,7 @@ from geopy import distance
 from operator import itemgetter
 
 # location = (44.9983525, 7.680287799999999)
-testing = 1  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
+testing = 0  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
 
 URL = "https://carburanti.mise.gov.it/ospzApi/search/zone"
 
@@ -86,7 +86,10 @@ def cerca_prezzo(location, carburante, distanza_max):
                         validi.append(dati)
                         break
     validi = sorted(validi, key=itemgetter("distanza"))
-    validi[0]["icon"] = "\U0001F680"
+    try:
+        validi[0]["icon"] = "\U0001F680"
+    except IndexError:
+        return -1
     validi = sorted(validi, key=itemgetter("prezzo"))
 
     """fw = open("valid.txt", "w")
