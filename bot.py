@@ -1,34 +1,36 @@
 import _token
 import getData
 
-import telebot
+from telebot.async_telebot import AsyncTeleBot
+import asyncio
+
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-bot = telebot.TeleBot(_token.api_key_development, parse_mode=None)
+bot = AsyncTeleBot(_token.api_key_development, parse_mode=None)
 
 raggio = 2
 carburante = ""
 
 
 @bot.message_handler(commands=["start"])
-def send_welcome(message):
+async def send_welcome(message):
     print("Start request from id: " + message.from_user.username)
-    bot.send_message(
+    await bot.send_message(
         message.chat.id, "Seleziona il tipo di carburante:", reply_markup=gen_markup()
     )
 
 
 @bot.message_handler(commands=["config"])
-def send_welcome(message):
-    print("Config request from id: " + message.from_user.username)
+async def send_welcome(message):
+    await print("Config request from id: " + message.from_user.username)
 
 
 @bot.callback_query_handler(func=lambda call: True)
-def callback_query(call):
+async def callback_query(call):
     global carburante, raggio
     carburante = call.data
     if carburante == "radius":
-        bot.answer_callback_query(callback_query_id=call.id)
+        await bot.answer_callback_query(callback_query_id=call.id)
         return
     if carburante == "rp":
         if raggio < 1:
@@ -38,11 +40,11 @@ def callback_query(call):
         else:
             raggio = int(raggio)
             if raggio >= 20:
-                bot.answer_callback_query(callback_query_id=call.id)
+                await bot.answer_callback_query(callback_query_id=call.id)
                 return
             raggio += 1
-        bot.answer_callback_query(callback_query_id=call.id)
-        bot.edit_message_text(
+        await bot.answer_callback_query(callback_query_id=call.id)
+        await bot.edit_message_text(
             "Seleziona il tipo di carburante: ",
             call.message.chat.id,
             call.message.message_id,
@@ -52,29 +54,29 @@ def callback_query(call):
     if carburante == "rm":
         if raggio <= 1:
             if raggio <= 0.15:
-                bot.answer_callback_query(callback_query_id=call.id)
+                await bot.answer_callback_query(callback_query_id=call.id)
                 return
             raggio -= 0.1
         else:
             raggio -= 1
-        bot.answer_callback_query(callback_query_id=call.id)
-        bot.edit_message_text(
+        await bot.answer_callback_query(callback_query_id=call.id)
+        await bot.edit_message_text(
             "Seleziona il tipo di carburante: ",
             call.message.chat.id,
             call.message.message_id,
             reply_markup=gen_markup(),
         )
         return
-    bot.edit_message_text(
+    await bot.edit_message_text(
         "Inviami la tua posizione...", call.message.chat.id, call.message.message_id
     )
 
 
 @bot.message_handler(content_types=["location", "venue"])
-def handle_location(message):
+async def handle_location(message):
     global carburante
     if carburante not in ("1-1", "2-1", "4-x"):
-        bot.send_message(
+        await bot.send_message(
             message.chat.id,
             "\U000026A0 Seleziona prima il tipo di carburante:",
             reply_markup=gen_markup(),
@@ -91,11 +93,11 @@ def handle_location(message):
         location, carburante, raggio
     )  # 5 in questo caso è la distanza
     if prezzi == -1:
-        bot.send_message(
+        await bot.send_message(
             message.chat.id,
             "Nessun benzinaio trovato nell'area selezionata\nriprova con un raggio maggiore",
         )
-        bot.send_message(
+        await bot.send_message(
             message.chat.id,
             "Seleziona il tipo di carburante:",
             reply_markup=gen_markup(),
@@ -134,7 +136,7 @@ def handle_location(message):
                 + "\n"
             )
 
-    bot.send_message(message.chat.id, msg_buf, parse_mode="HTML")
+    await bot.send_message(message.chat.id, msg_buf, parse_mode="HTML")
 
 
 def gen_markup():
@@ -159,4 +161,4 @@ def gen_markup():
     return markup
 
 
-bot.infinity_polling()
+asyncio.run(bot.polling())
