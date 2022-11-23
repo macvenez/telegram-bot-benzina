@@ -2,7 +2,10 @@ import requests, json
 from geopy import distance
 from operator import itemgetter
 
-# location = (44.9983525, 7.680287799999999)
+from datetime import datetime
+
+now = datetime.now()
+
 testing = 0  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
 
 URL = "https://carburanti.mise.gov.it/ospzApi/search/zone"
@@ -33,19 +36,22 @@ def cerca_prezzo(location, carburante, distanza_max):
             + carburante
             + '","priceOrder":"asc"}'
         )
-        # raw_data = '{"points":[{"lat":44.9983525,"lng":7.680287799999999}],"fuelType":"1-1","priceOrder":"asc"}'
         r = requests.post(url=URL, data=raw_data, headers=HEADERS)
         data = (
             bytes(r.content.decode("utf-8"), "utf-8")
             .decode("unicode_escape")
             .replace("\\", "/")
         )
-        print("Requested data from internet")
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        print(dt_string + " --> getData.py --> Requested data from internet")
     else:
         f = open("data copy.json", "r")
         data = f.read()
         f.close()
-        print("Requested data from file")
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        print(dt_string + " --> getData.py --> Requested data from file")
 
     data = json.loads(data)["results"]
     validi = []

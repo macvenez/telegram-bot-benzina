@@ -5,8 +5,9 @@ from telebot.async_telebot import AsyncTeleBot
 import asyncio
 
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from datetime import datetime
 
-bot = AsyncTeleBot(_token.api_key_development, parse_mode=None)
+bot = AsyncTeleBot(_token.api_key, parse_mode=None)
 
 raggio = 2
 carburante = ""
@@ -14,7 +15,9 @@ carburante = ""
 
 @bot.message_handler(commands=["start"])
 async def send_welcome(message):
-    print("Start request from id: " + message.from_user.username)
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    print(dt_string + " --> Start request from id: " + message.from_user.username)
     await bot.send_message(
         message.chat.id, "Seleziona il tipo di carburante:", reply_markup=gen_markup()
     )
@@ -22,7 +25,11 @@ async def send_welcome(message):
 
 @bot.message_handler(commands=["config"])
 async def send_welcome(message):
-    await print("Config request from id: " + message.from_user.username)
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    await print(
+        dt_string + " --> Config request from id: " + message.from_user.username
+    )
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -82,8 +89,11 @@ async def handle_location(message):
             reply_markup=gen_markup(),
         )
         return
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     print(
-        "Request prezzi from id: "
+        dt_string
+        + " --> Request prezzi from id: "
         + message.from_user.username
         + " carburante: "
         + carburante
@@ -161,4 +171,4 @@ def gen_markup():
     return markup
 
 
-asyncio.run(bot.polling())
+asyncio.run(bot.polling(non_stop=True, request_timeout=90))
