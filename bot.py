@@ -7,7 +7,7 @@ import asyncio
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from datetime import datetime
 
-bot = AsyncTeleBot(_token.api_key, parse_mode=None)
+bot = AsyncTeleBot(_token.api_key_development, parse_mode=None)
 
 raggio = 2
 carburante = ""
@@ -141,9 +141,9 @@ async def handle_location(message):
                 + str(prezzi[i]["prezzo"])
                 + "€/l "
                 + nome
-                + "</a>"
-                + prezzi[i]["icon"]
-                + "\n"
+                + "</a> ("
+                + str(round(prezzi[i]["dist"], 1))
+                + "km)\n"
             )
 
     await bot.send_message(message.chat.id, msg_buf, parse_mode="HTML")

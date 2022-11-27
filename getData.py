@@ -6,7 +6,7 @@ from datetime import datetime
 
 now = datetime.now()
 
-testing = 0  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
+testing = 1  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
 
 URL = "https://carburanti.mise.gov.it/ospzApi/search/zone"
 
@@ -71,7 +71,7 @@ def cerca_prezzo(location, carburante, distanza_max):
                         "luogo": benzinaio["address"],
                         "marca": benzinaio["brand"],
                         "coord": benzinaio["location"],
-                        "icon": "",
+                        "dist": distanza,
                     }
                     validi.append(dati)
                     break
@@ -87,15 +87,15 @@ def cerca_prezzo(location, carburante, distanza_max):
                             "luogo": benzinaio["address"],
                             "marca": benzinaio["brand"],
                             "coord": benzinaio["location"],
-                            "icon": "",
+                            "dist": distanza,
                         }
                         validi.append(dati)
                         break
-    validi = sorted(validi, key=itemgetter("distanza"))
+    """validi = sorted(validi, key=itemgetter("distanza"))
     try:
         validi[0]["icon"] = "\U0001F680"
     except IndexError:
-        return -1
+        return -1"""
     validi = sorted(validi, key=itemgetter("prezzo"))
 
     """fw = open("valid.txt", "w")
