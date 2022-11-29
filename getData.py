@@ -4,25 +4,11 @@ from operator import itemgetter
 
 from datetime import datetime
 
+import _secret
+
 now = datetime.now()
 
-testing = 1  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
-
-URL = "https://carburanti.mise.gov.it/ospzApi/search/zone"
-
-HEADERS = {
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-    "Origin": "https://carburanti.mise.gov.it",
-    "Connection": "keep-alive",
-    "Referer": "https://carburanti.mise.gov.it/ospzSearch/zona",
-    "Cookie": "cookies_consent=true",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-origin",
-    "Pragma": "no-cache",
-    "Cache-Control": "no-cache",
-}
+testing = 0  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
 
 
 def cerca_prezzo(location, carburante, distanza_max):
@@ -36,7 +22,7 @@ def cerca_prezzo(location, carburante, distanza_max):
             + carburante
             + '","priceOrder":"asc"}'
         )
-        r = requests.post(url=URL, data=raw_data, headers=HEADERS)
+        r = requests.post(url=_secret.URL, data=raw_data, headers=_secret.HEADERS)
         data = (
             bytes(r.content.decode("utf-8"), "utf-8")
             .decode("unicode_escape")

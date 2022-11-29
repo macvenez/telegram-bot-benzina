@@ -1,4 +1,4 @@
-import _token
+import _secret
 import getData
 
 from telebot.async_telebot import AsyncTeleBot
@@ -7,7 +7,7 @@ import asyncio
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from datetime import datetime
 
-bot = AsyncTeleBot(_token.api_key_development, parse_mode=None)
+bot = AsyncTeleBot(_secret.api_key_development, parse_mode=None)
 
 raggio = 2
 carburante = ""
