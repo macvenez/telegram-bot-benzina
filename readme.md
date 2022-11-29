@@ -40,12 +40,17 @@ You can get all these packages by (assuming you have python-pip):
 pip install pyTelegramBotAPI aiohttp geopy
 ```
 
-
 # Running the bot
 Now you can just run the bot with
 ```
 python bot.py
+
 ```
+
+# Commands and usage
+Actually there's only a command
+* `/start`: Start the bot and choose fuel type and distance  
+After selecting that you'll be asked to send your position, you can do that by using the "attach icon" :paperclip: and selecting Location
 
 # Contributors and references
 ![GitHub Contributors Image](https://contrib.rocks/image?repo=macvenez/telegram-bot-benzina)  
