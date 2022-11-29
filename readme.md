@@ -44,7 +44,6 @@ pip install pyTelegramBotAPI aiohttp geopy
 Now you can just run the bot with
 ```
 python bot.py
-
 ```
 
 # Commands and usage
