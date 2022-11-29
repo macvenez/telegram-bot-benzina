@@ -18,8 +18,9 @@ The data I'm using are from Italian public [OsservaPrezzi Carburanti website](ht
 # Installation and prerequisites
 Simply get this repo by 
 ```
-git clone https://github.com/macvenez/telegram-bot-benzina.git
+git clone -b release2 https://github.com/macvenez/telegram-bot-benzina.git
 ```
+!!! Checkout latest release for a working bot, all the other branches not "release*" are development branches
 ```
 cd telegram-bot-benzina
 ```
