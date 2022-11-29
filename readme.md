@@ -47,6 +47,7 @@ Now you can just run the bot with
 python bot.py
 ```
 
+# Contributors and references
+![GitHub Contributors Image](https://contrib.rocks/image?repo=macvenez/telegram-bot-benzina)  
 
-![GitHub Contributors Image](https://contrib.rocks/image?repo=macvenez/telegram-bot-benzina)
 [Fuel icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/fuel)
