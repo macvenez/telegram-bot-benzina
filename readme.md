@@ -1,6 +1,11 @@
-
-<img align="center" src="" alt="benzina_logo" />
+<p align="center">
+<img align="center" width="100px" src="https://www.venez.it/assets/gas-pump.png" alt="benzina_logo" />
 <h1 align="center">Telegram Bot Benzina</h1>
+</p>
+
+
+ You can find this bot at:
+[@prezzi_benzina_bot](https://t.me/prezzi_benzina_bot)
 
 # Introduction
 This project was born during the high fuel price rising in 2022. It was suggested by a friend of mine and I wanted to test myself into something really useful.  
@@ -36,7 +41,7 @@ pip install pyTelegramBotAPI aiohttp geopy
 
 
 # Running the bot
-Now you can just run he bot with
+Now you can just run the bot with
 ```
 python bot.py
 ```
