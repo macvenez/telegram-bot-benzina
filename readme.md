@@ -6,7 +6,6 @@
 
  You can find this bot at:
 [@prezzi_benzina_bot](https://t.me/prezzi_benzina_bot)
-![GitHub Contributors Image](https://contrib.rocks/image?repo=macvenez/telegram-bot-benzina)
 
 
 # Introduction
@@ -49,5 +48,5 @@ python bot.py
 ```
 
 
-
+![GitHub Contributors Image](https://contrib.rocks/image?repo=macvenez/telegram-bot-benzina)
 [Fuel icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/fuel)
