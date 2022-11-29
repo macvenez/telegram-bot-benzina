@@ -50,7 +50,7 @@ python bot.py
 # Commands and usage
 Actually there's only a command
 * `/start`: Start the bot and choose fuel type and distance  
-After selecting that you'll be asked to send your position, you can do that by using the "attach icon" :paperclip: and selecting Location
+After selecting that you'll be asked to send your position, you can do that by using the "attach icon" :paperclip: and selecting Location :pushpin:
 
 # Contributors and references
 ![GitHub Contributors Image](https://contrib.rocks/image?repo=macvenez/telegram-bot-benzina)  
