@@ -35,7 +35,7 @@ In order to use the bot you should have the following python packages:
 - [geopy](https://github.com/geopy/geopy)
 - [aiohttp](https://github.com/aio-libs/aiohttp)  
 
-You can get all these packages by
+You can get all these packages by (assuming you have python-pip):
 ```
 pip install pyTelegramBotAPI aiohttp geopy
 ```
