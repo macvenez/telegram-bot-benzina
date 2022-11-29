@@ -6,6 +6,8 @@
 
  You can find this bot at:
 [@prezzi_benzina_bot](https://t.me/prezzi_benzina_bot)
+![GitHub Contributors Image](https://contrib.rocks/image?repo=macvenez/telegram-bot-benzina)
+
 
 # Introduction
 This project was born during the high fuel price rising in 2022. It was suggested by a friend of mine and I wanted to test myself into something really useful.  
