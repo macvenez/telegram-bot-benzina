@@ -1,5 +1,5 @@
 import _secret
-import getData
+import getData, dbLink
 
 from telebot.async_telebot import AsyncTeleBot
 import asyncio
