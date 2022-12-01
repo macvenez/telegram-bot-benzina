@@ -10,7 +10,8 @@ from datetime import datetime
 bot = AsyncTeleBot(_secret.api_key_development, parse_mode=None)
 
 raggio = 2
-carburante = ""
+options = ""
+max_benzinai = 5
 
 
 @bot.message_handler(commands=["start"])
@@ -34,12 +35,12 @@ async def send_welcome(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 async def callback_query(call):
-    global carburante, raggio
-    carburante = call.data
-    if carburante == "radius":
+    global options, raggio, max_benzinai
+    options = call.data
+    if options == "radius" or options == "displayed":
         await bot.answer_callback_query(callback_query_id=call.id)
         return
-    if carburante == "rp":
+    if options == "rp":
         if raggio < 1:
             raggio += 0.1
             if raggio == 1:
@@ -58,7 +59,7 @@ async def callback_query(call):
             reply_markup=gen_markup(),
         )
         return
-    if carburante == "rm":
+    if options == "rm":
         if raggio <= 1:
             if raggio <= 0.15:
                 await bot.answer_callback_query(callback_query_id=call.id)
@@ -74,6 +75,35 @@ async def callback_query(call):
             reply_markup=gen_markup(),
         )
         return
+    if options == "dp":
+        if max_benzinai >= 10:
+            await bot.answer_callback_query(callback_query_id=call.id)
+            return
+        else:
+            max_benzinai += 1
+            await bot.answer_callback_query(callback_query_id=call.id)
+            await bot.edit_message_text(
+                "Seleziona il tipo di carburante: ",
+                call.message.chat.id,
+                call.message.message_id,
+                reply_markup=gen_markup(),
+            )
+            return
+    if options == "dm":
+        if max_benzinai == 1:
+            await bot.answer_callback_query(callback_query_id=call.id)
+            return
+        else:
+            max_benzinai -= 1
+            await bot.answer_callback_query(callback_query_id=call.id)
+            await bot.edit_message_text(
+                "Seleziona il tipo di carburante: ",
+                call.message.chat.id,
+                call.message.message_id,
+                reply_markup=gen_markup(),
+            )
+            return
+
     await bot.edit_message_text(
         "Inviami la tua posizione...", call.message.chat.id, call.message.message_id
     )
@@ -81,8 +111,8 @@ async def callback_query(call):
 
 @bot.message_handler(content_types=["location", "venue"])
 async def handle_location(message):
-    global carburante
-    if carburante not in ("1-1", "2-1", "4-x"):
+    global options, max_benzinai
+    if options not in ("1-1", "2-1", "4-x"):
         await bot.send_message(
             message.chat.id,
             "\U000026A0 Seleziona prima il tipo di carburante:",
@@ -96,11 +126,11 @@ async def handle_location(message):
         + " --> Request prezzi from id: "
         + message.from_user.username
         + " carburante: "
-        + carburante
+        + options
     )
     location = [message.location.latitude, message.location.longitude]
     prezzi = getData.cerca_prezzo(
-        location, carburante, raggio
+        location, options, raggio
     )  # 5 in questo caso è la distanza
     if prezzi == -1:
         await bot.send_message(
@@ -113,7 +143,6 @@ async def handle_location(message):
             reply_markup=gen_markup(),
         )
         return
-    max_benzinai = 5
     msg_buf = ""
     for i, item in enumerate(prezzi):
         if i == max_benzinai:
@@ -158,6 +187,14 @@ def gen_markup():
             "Raggio (km): " + str(round(raggio, 1)), callback_data="radius"
         ),
         InlineKeyboardButton("+", callback_data="rp"),
+    )
+    markup.add(
+        InlineKeyboardButton("-", callback_data="dm"),
+        InlineKeyboardButton(
+            "Distributori: " + str(max_benzinai),
+            callback_data="displayed",
+        ),
+        InlineKeyboardButton("+", callback_data="dp"),
     )
     markup.row_width = 2
     markup.add(
