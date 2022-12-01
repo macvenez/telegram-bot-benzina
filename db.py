@@ -1,0 +1,58 @@
+import mysql.connector
+from mysql.connector import cursor
+from datetime import datetime
+import _secret
+
+default_radius = 2
+default_max_displayed = 5
+
+
+def initDB():
+    global cursor, db
+    db = mysql.connector.connect(
+        host=_secret.db_host,
+        user=_secret.db_user,
+        password=_secret.db_password,
+        database=_secret.db_database,
+    )
+    print("Connected to:", db.get_server_info())
+    cursor = db.cursor()
+
+
+def addUser(user_id):
+    global default_radius, default_max_displayed
+    sql = "INSERT INTO users (id, max_displayed, radius, total_requests) VALUES (%s, %s, %s, %s)"
+    values = (user_id, default_max_displayed, default_radius, 0)
+    cursor.execute(sql, values)
+    db.commit()
+
+
+def updateData(user_id, max_displayed, radius):
+    sql = "UPDATE users SET radius = %s, max_displayed=%s WHERE id = %s"
+    values = (radius, max_displayed, user_id)
+    cursor.execute(sql, values)
+    db.commit()
+
+
+def performRequest(user_id):
+    sql = "UPDATE users SET last_request=%s, total_requests = total_requests+1 WHERE id = %s"
+    now = datetime.now()
+    dt_string = now.strftime("%y-%m-%d %H:%M:%S")
+    values = (dt_string, user_id)
+    cursor.execute(sql, values)
+    db.commit()
+
+
+def getData(user_id):
+    sql = "SELECT max_displayed, radius from users WHERE id=%s"
+    values = (user_id,)
+    cursor.execute(sql, values)
+    result = cursor.fetchone()
+    return [int(result[0]), float(result[1])]
+
+
+# initDB()
+
+# addUser(123456)
+# updateData(123456, 10, 6.4)
+# performRequest(123456)
