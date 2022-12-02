@@ -11,7 +11,6 @@ bot = AsyncTeleBot(_secret.api_key_development, parse_mode=None)
 
 default_radius = 2
 default_max_displayed = 5
-
 currUsers = {}
 
 
@@ -42,13 +41,13 @@ async def send_welcome(message):
     )
 
 
-@bot.message_handler(commands=["config"])
+@bot.message_handler(commands=["help"])
 async def send_welcome(message):
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-    await print(
-        dt_string + " --> Config request from id: " + message.from_user.username
-    )
+    print(dt_string + " --> Help request from id: " + message.from_user.username)
+    await bot.send_message(message.chat.id, _secret.help_message)
+    await bot.send_message(message.chat.id, _secret.help_message_2)
 
 
 @bot.callback_query_handler(func=lambda call: True)
