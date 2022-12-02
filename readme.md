@@ -33,11 +33,12 @@ You can also just hardcode your apikey instead of including it externally
 In order to use the bot you should have the following python packages:
 - [pyTelegramBot](https://github.com/eternnoir/pyTelegramBotAPI)
 - [geopy](https://github.com/geopy/geopy)
-- [aiohttp](https://github.com/aio-libs/aiohttp)  
+- [aiohttp](https://github.com/aio-libs/aiohttp)
+- [mysql.connector](https://github.com/mysql/mysql-connector-python)    
 
 You can get all these packages by (assuming you have python-pip):
 ```
-pip install pyTelegramBotAPI aiohttp geopy
+pip install pyTelegramBotAPI aiohttp geopy mysql-connector
 ```
 
 # Running the bot
