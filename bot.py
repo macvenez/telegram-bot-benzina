@@ -9,18 +9,38 @@ from datetime import datetime
 
 bot = AsyncTeleBot(_secret.api_key_development, parse_mode=None)
 
-raggio = 2
-options = ""
-max_benzinai = 5
+default_radius = 2
+default_max_displayed = 5
+
+currUsers = {}
 
 
 @bot.message_handler(commands=["start"])
 async def send_welcome(message):
+    global max_displayed, radius, currUsers
+    user_id = message.from_user.id
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-    print(dt_string + " --> Start request from id: " + message.from_user.username)
+    print(dt_string + " --> Start request from id: " + str(user_id))
+
+    if user_id not in currUsers:
+        dbData = dbLink.getData(user_id)
+        if dbData == 0:
+            print("Creating User " + str(user_id))
+            dbLink.addUser(
+                user_id, default_max_displayed, default_radius
+            )  # create a new user with default settings
+        else:
+            print("Reading data in database for user " + str(user_id))
+            currUsers[user_id] = {
+                "max_displayed": int(dbData[0]),
+                "radius": float(dbData[1]),
+                "options": "",
+            }  # get data saved in database
     await bot.send_message(
-        message.chat.id, "Seleziona il tipo di carburante:", reply_markup=gen_markup()
+        message.chat.id,
+        "Seleziona il tipo di carburante:",
+        reply_markup=gen_markup(user_id),
     )
 
 
@@ -35,72 +55,76 @@ async def send_welcome(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 async def callback_query(call):
-    global options, raggio, max_benzinai
-    options = call.data
-    if options == "radius" or options == "displayed":
+    user_id = call.message.chat.id
+    global currUsers
+    currUsers[user_id]["options"] = call.data
+    if (
+        currUsers[user_id]["options"] == "radius"
+        or currUsers[user_id]["options"] == "displayed"
+    ):
         await bot.answer_callback_query(callback_query_id=call.id)
         return
-    if options == "rp":
-        if raggio < 1:
-            raggio += 0.1
-            if raggio == 1:
-                raggio = int(raggio)
+    if currUsers[user_id]["options"] == "rp":
+        if currUsers[user_id]["radius"] < 1:
+            currUsers[user_id]["radius"] += 0.1
+            if currUsers[user_id]["radius"] == 1:
+                currUsers[user_id]["radius"] = int(currUsers[user_id]["radius"])
         else:
-            raggio = int(raggio)
-            if raggio >= 20:
+            currUsers[user_id]["radius"] = int(currUsers[user_id]["radius"])
+            if currUsers[user_id]["radius"] >= 20:
                 await bot.answer_callback_query(callback_query_id=call.id)
                 return
-            raggio += 1
+            currUsers[user_id]["radius"] += 1
         await bot.answer_callback_query(callback_query_id=call.id)
         await bot.edit_message_text(
             "Seleziona il tipo di carburante: ",
             call.message.chat.id,
             call.message.message_id,
-            reply_markup=gen_markup(),
+            reply_markup=gen_markup(user_id),
         )
         return
-    if options == "rm":
-        if raggio <= 1:
-            if raggio <= 0.15:
+    if currUsers[user_id]["options"] == "rm":
+        if currUsers[user_id]["radius"] <= 1:
+            if currUsers[user_id]["radius"] <= 0.15:
                 await bot.answer_callback_query(callback_query_id=call.id)
                 return
-            raggio -= 0.1
+            currUsers[user_id]["radius"] -= 0.1
         else:
-            raggio -= 1
+            currUsers[user_id]["radius"] -= 1
         await bot.answer_callback_query(callback_query_id=call.id)
         await bot.edit_message_text(
             "Seleziona il tipo di carburante: ",
             call.message.chat.id,
             call.message.message_id,
-            reply_markup=gen_markup(),
+            reply_markup=gen_markup(user_id),
         )
         return
-    if options == "dp":
-        if max_benzinai >= 10:
+    if currUsers[user_id]["options"] == "dp":
+        if currUsers[user_id]["max_displayed"] >= 10:
             await bot.answer_callback_query(callback_query_id=call.id)
             return
         else:
-            max_benzinai += 1
+            currUsers[user_id]["max_displayed"] += 1
             await bot.answer_callback_query(callback_query_id=call.id)
             await bot.edit_message_text(
                 "Seleziona il tipo di carburante: ",
                 call.message.chat.id,
                 call.message.message_id,
-                reply_markup=gen_markup(),
+                reply_markup=gen_markup(user_id),
             )
             return
-    if options == "dm":
-        if max_benzinai == 1:
+    if currUsers[user_id]["options"] == "dm":
+        if currUsers[user_id]["max_displayed"] == 1:
             await bot.answer_callback_query(callback_query_id=call.id)
             return
         else:
-            max_benzinai -= 1
+            currUsers[user_id]["max_displayed"] -= 1
             await bot.answer_callback_query(callback_query_id=call.id)
             await bot.edit_message_text(
                 "Seleziona il tipo di carburante: ",
                 call.message.chat.id,
                 call.message.message_id,
-                reply_markup=gen_markup(),
+                reply_markup=gen_markup(user_id),
             )
             return
 
@@ -111,12 +135,13 @@ async def callback_query(call):
 
 @bot.message_handler(content_types=["location", "venue"])
 async def handle_location(message):
-    global options, max_benzinai
-    if options not in ("1-1", "2-1", "4-x"):
+    user_id = message.from_user.id
+    global currUsers
+    if currUsers[user_id]["options"] not in ("1-1", "2-1", "4-x"):
         await bot.send_message(
             message.chat.id,
             "\U000026A0 Seleziona prima il tipo di carburante:",
-            reply_markup=gen_markup(),
+            reply_markup=gen_markup(user_id),
         )
         return
     now = datetime.now()
@@ -124,14 +149,14 @@ async def handle_location(message):
     print(
         dt_string
         + " --> Request prezzi from id: "
-        + message.from_user.username
+        + str(user_id)
         + " carburante: "
-        + options
+        + str(currUsers[user_id]["options"])
     )
     location = [message.location.latitude, message.location.longitude]
     prezzi = getData.cerca_prezzo(
-        location, options, raggio
-    )  # 5 in questo caso è la distanza
+        location, currUsers[user_id]["options"], currUsers[user_id]["radius"]
+    )
     if prezzi == -1:
         await bot.send_message(
             message.chat.id,
@@ -140,12 +165,12 @@ async def handle_location(message):
         await bot.send_message(
             message.chat.id,
             "Seleziona il tipo di carburante:",
-            reply_markup=gen_markup(),
+            reply_markup=gen_markup(user_id),
         )
         return
     msg_buf = ""
     for i, item in enumerate(prezzi):
-        if i == max_benzinai:
+        if i == currUsers[user_id]["max_displayed"]:
             break
         else:
             if i == 0:
@@ -176,22 +201,29 @@ async def handle_location(message):
             )
 
     await bot.send_message(message.chat.id, msg_buf, parse_mode="HTML")
+    dbLink.performRequest(user_id)
+    dbLink.updateData(
+        user_id, currUsers[user_id]["max_displayed"], currUsers[user_id]["radius"]
+    )
+    del currUsers[user_id]
 
 
-def gen_markup():
+def gen_markup(user_id):
+    global currUsers
     markup = InlineKeyboardMarkup()
     markup.row_width = 3
     markup.add(
         InlineKeyboardButton("-", callback_data="rm"),
         InlineKeyboardButton(
-            "Raggio (km): " + str(round(raggio, 1)), callback_data="radius"
+            "Raggio (km): " + str(round(currUsers[user_id]["radius"], 1)),
+            callback_data="radius",
         ),
         InlineKeyboardButton("+", callback_data="rp"),
     )
     markup.add(
         InlineKeyboardButton("-", callback_data="dm"),
         InlineKeyboardButton(
-            "Distributori: " + str(max_benzinai),
+            "Distributori: " + str(currUsers[user_id]["max_displayed"]),
             callback_data="displayed",
         ),
         InlineKeyboardButton("+", callback_data="dp"),
@@ -208,4 +240,5 @@ def gen_markup():
     return markup
 
 
+dbLink.initDB()
 asyncio.run(bot.polling(non_stop=True, request_timeout=90))

@@ -8,7 +8,7 @@ import _secret
 
 now = datetime.now()
 
-testing = 0  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
+testing = 1  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
 
 
 def cerca_prezzo(location, carburante, distanza_max):
@@ -77,15 +77,5 @@ def cerca_prezzo(location, carburante, distanza_max):
                         }
                         validi.append(dati)
                         break
-    """validi = sorted(validi, key=itemgetter("distanza"))
-    try:
-        validi[0]["icon"] = "\U0001F680"
-    except IndexError:
-        return -1"""
     validi = sorted(validi, key=itemgetter("prezzo"))
-
-    """fw = open("valid.txt", "w")
-    fw.write(str(validi))
-    fw.close()
-    """
     return validi

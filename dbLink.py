@@ -19,10 +19,9 @@ def initDB():
     cursor = db.cursor()
 
 
-def addUser(user_id):
-    global default_radius, default_max_displayed
+def addUser(user_id, max_displayed, radius):
     sql = "INSERT INTO users (id, max_displayed, radius, total_requests) VALUES (%s, %s, %s, %s)"
-    values = (user_id, default_max_displayed, default_radius, 0)
+    values = (user_id, max_displayed, radius, 0)
     cursor.execute(sql, values)
     db.commit()
 
@@ -48,11 +47,7 @@ def getData(user_id):
     values = (user_id,)
     cursor.execute(sql, values)
     result = cursor.fetchone()
-    return [int(result[0]), float(result[1])]
-
-
-# initDB()
-
-# addUser(123456)
-# updateData(123456, 10, 6.4)
-# performRequest(123456)
+    try:
+        return [int(result[0]), float(result[1])]
+    except TypeError:
+        return 0
