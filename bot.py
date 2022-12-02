@@ -26,12 +26,10 @@ async def send_welcome(message):
     if user_id not in currUsers:
         dbData = dbLink.getData(user_id)
         if dbData == 0:
-            print("Creating User " + str(user_id))
             dbLink.addUser(
                 user_id, default_max_displayed, default_radius
             )  # create a new user with default settings
         else:
-            print("Reading data in database for user " + str(user_id))
             currUsers[user_id] = {
                 "max_displayed": int(dbData[0]),
                 "radius": float(dbData[1]),
@@ -137,7 +135,18 @@ async def callback_query(call):
 async def handle_location(message):
     user_id = message.from_user.id
     global currUsers
-    if currUsers[user_id]["options"] not in ("1-1", "2-1", "4-x"):
+    if user_id not in currUsers:
+        dbData = dbLink.getData(user_id)
+        if dbData == 0:
+            dbLink.addUser(
+                user_id, default_max_displayed, default_radius
+            )  # create a new user with default settings
+        else:
+            currUsers[user_id] = {
+                "max_displayed": int(dbData[0]),
+                "radius": float(dbData[1]),
+                "options": "",
+            }  # get data saved in database
         await bot.send_message(
             message.chat.id,
             "\U000026A0 Seleziona prima il tipo di carburante:",

@@ -6,8 +6,6 @@ from datetime import datetime
 
 import _secret
 
-now = datetime.now()
-
 testing = 1  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
 
 
