@@ -17,11 +17,12 @@ def initDB():
     )
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-    print(dt_string + " --> dbLink.py --> Connected to:", db.get_server_info())
+    print(dt_string + " --> dbLink.py --> Connected to:", db.get_server_info(), "\n\n")
     cursor = db.cursor()
 
 
 def addUser(user_id, max_displayed, radius):
+    reConnectDB()
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     print(dt_string + " --> dbLink.py --> Creating new user " + str(user_id))
@@ -32,9 +33,12 @@ def addUser(user_id, max_displayed, radius):
 
 
 def updateData(user_id, max_displayed, radius):
+    reConnectDB()
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-    print(dt_string + " --> dbLink.py --> Updating data for user " + str(user_id))
+    print(
+        dt_string + " --> dbLink.py --> Updating data for user " + str(user_id) + "\n\n"
+    )
     sql = "UPDATE users SET radius = %s, max_displayed=%s WHERE id = %s"
     values = (radius, max_displayed, user_id)
     cursor.execute(sql, values)
@@ -42,6 +46,7 @@ def updateData(user_id, max_displayed, radius):
 
 
 def performRequest(user_id):
+    reConnectDB()
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     print(
@@ -55,6 +60,7 @@ def performRequest(user_id):
 
 
 def getData(user_id):
+    reConnectDB()
     sql = "SELECT max_displayed, radius from users WHERE id=%s"
     values = (user_id,)
     cursor.execute(sql, values)
@@ -63,3 +69,8 @@ def getData(user_id):
         return [int(result[0]), float(result[1])]
     except TypeError:
         return 0
+
+
+def reConnectDB():
+    if db.is_connected() != True:
+        initDB()
