@@ -39,6 +39,10 @@ async def send_welcome(message):
             }  # get data saved in database
     await bot.send_message(
         message.chat.id,
+        "ATTENZIONE! L'aggiornamento dei prezzi dipende dall'aggiornamento da parte del gestore del distributore, non mi assumo responsabilità nel caso di prezzi errati",
+    )
+    await bot.send_message(
+        message.chat.id,
         "Seleziona il tipo di carburante:",
         reply_markup=gen_markup(user_id),
     )
@@ -152,6 +156,10 @@ async def handle_location(message):
                 "radius": float(dbData[1]),
                 "options": "",
             }  # get data saved in database
+        await bot.send_message(
+            message.chat.id,
+            "ATTENZIONE! L'aggiornamento dei prezzi dipende dall'aggiornamento da parte del gestore del distributore, non mi assumo responsabilità nel caso di prezzi errati",
+        )
         await bot.send_message(
             message.chat.id,
             "\U000026A0 Seleziona prima il tipo di carburante:",
