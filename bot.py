@@ -25,9 +25,12 @@ async def send_welcome(message):
     if user_id not in currUsers:
         dbData = dbLink.getData(user_id)
         if dbData == 0:
-            dbLink.addUser(
-                user_id, default_max_displayed, default_radius
-            )  # create a new user with default settings
+            dbLink.addUser(user_id, default_max_displayed, default_radius)
+            currUsers[user_id] = {
+                "max_displayed": int(default_max_displayed),
+                "radius": float(default_radius),
+                "options": "",
+            }  # create a new user with default settings
         else:
             currUsers[user_id] = {
                 "max_displayed": int(dbData[0]),
@@ -137,9 +140,12 @@ async def handle_location(message):
     if user_id not in currUsers:
         dbData = dbLink.getData(user_id)
         if dbData == 0:
-            dbLink.addUser(
-                user_id, default_max_displayed, default_radius
-            )  # create a new user with default settings
+            dbLink.addUser(user_id, default_max_displayed, default_radius)
+            currUsers[user_id] = {
+                "max_displayed": int(default_max_displayed),
+                "radius": float(default_radius),
+                "options": "",
+            }  # create a new user with default settings
         else:
             currUsers[user_id] = {
                 "max_displayed": int(dbData[0]),
