@@ -17,7 +17,7 @@ def initDB():
     )
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-    print(dt_string + " --> dbLink.py --> Connected to:", db.get_server_info(), "\n\n")
+    print(dt_string + " --> dbLink.py --> Connected to:", db.get_server_info())
     cursor = db.cursor()
 
 

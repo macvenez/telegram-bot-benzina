@@ -179,7 +179,7 @@ async def handle_location(message):
     prezzi = getData.cerca_prezzo(
         location, currUsers[user_id]["options"], currUsers[user_id]["radius"]
     )
-    if prezzi == -1:
+    if len(prezzi) == 0:
         await bot.send_message(
             message.chat.id,
             "Nessun benzinaio trovato nell'area selezionata\nriprova con un raggio maggiore",
