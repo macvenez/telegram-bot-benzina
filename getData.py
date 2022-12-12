@@ -1,26 +1,32 @@
 import requests, json
-from geopy import distance
 from operator import itemgetter
-
+from geopy import distance
 from datetime import datetime
 
 import _secret
 
-testing = 1  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
+testing = 0  # set this to 0 if you want to request data from the internet instead from file (used to reduce api requests)
 
 
 def cerca_prezzo(location, carburante, distanza_max):
     if testing == 0:
-        raw_data = (
-            '{"points":[{"lat":'
-            + str(location[0])
-            + ',"lng":'
-            + str(location[1])
-            + '}],"fuelType":"'
-            + carburante
-            + '","priceOrder":"asc"}'
+        json_data = {
+            "points": [
+                {
+                    "lat": str(location[0]),
+                    "lng": str(location[1]),
+                },
+            ],
+            "fuelType": "1-1",
+            "priceOrder": "asc",
+            "radius": distanza_max,
+        }
+        # r = requests.post(url=_secret.URL, data=raw_data, headers=_secret.HEADERS)
+        r = requests.post(
+            _secret.URL,
+            headers=_secret.HEADERS,
+            json=json_data,
         )
-        r = requests.post(url=_secret.URL, data=raw_data, headers=_secret.HEADERS)
         data = (
             bytes(r.content.decode("utf-8"), "utf-8")
             .decode("unicode_escape")
