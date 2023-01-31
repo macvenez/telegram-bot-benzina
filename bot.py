@@ -6,6 +6,7 @@ import asyncio
 
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from datetime import datetime
+from os import path
 
 bot = AsyncTeleBot(_secret.api_key_development, parse_mode=None)
 
@@ -52,7 +53,7 @@ async def send_welcome(message):
 async def send_welcome(message):
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-    print(dt_string + " --> Help request from id: " + message.from_user.username)
+    print(dt_string + " --> Help request from id:", message.from_user.id)
     await bot.send_message(message.chat.id, _secret.help_message)
     await bot.send_message(message.chat.id, _secret.help_message_2)
 
@@ -135,6 +136,10 @@ async def callback_query(call):
     await bot.edit_message_text(
         "Inviami la tua posizione...", call.message.chat.id, call.message.message_id
     )
+    file_path = path.relpath("instructions.jpg")
+    photo = open(file_path, "rb")
+    await bot.send_photo(call.message.chat.id, photo)
+    photo.close()
 
 
 @bot.message_handler(content_types=["location", "venue"])
